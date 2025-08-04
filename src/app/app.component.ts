@@ -1,4 +1,9 @@
-import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { RATES } from './components/currency-converter/rates';
 import { CurrencyConverterComponent } from './components/currency-converter/currency-converter.component';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
@@ -20,9 +25,15 @@ export class AppComponent {
   readonly currencies = Object.keys(RATES);
   readonly currency = signal('GBP');
 
+  currencyConverter = viewChild.required(CurrencyConverterComponent);
+
   amount = new FormControl(100);
 
   refreshData(): void {
     console.log('refreshData');
+  }
+
+  stop(): void {
+    this.currencyConverter().stop();
   }
 }

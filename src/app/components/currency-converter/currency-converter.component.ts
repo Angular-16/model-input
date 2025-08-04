@@ -5,8 +5,16 @@ import {
   input,
 } from '@angular/core';
 import { RATES } from './rates';
-import { CommonModule } from '@angular/common';
-import { BehaviorSubject, interval, map, startWith, switchMap } from 'rxjs';
+import { CommonModule, NgOptimizedImage } from '@angular/common';
+import {
+  BehaviorSubject,
+  interval,
+  map,
+  startWith,
+  Subject,
+  switchMap,
+  takeUntil,
+} from 'rxjs';
 import {
   outputFromObservable,
   takeUntilDestroyed,
@@ -15,24 +23,29 @@ import {
 @Component({
   selector: 'app-currency-converter',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, NgOptimizedImage],
   templateUrl: './currency-converter.component.html',
   styleUrl: './currency-converter.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CurrencyConverterComponent {
   readonly manualRefresh$ = new BehaviorSubject<void>(undefined);
+  readonly stop$ = new Subject<void>();
+
   readonly refreshRequired$ = this.manualRefresh$.pipe(
     switchMap(() => interval(5000).pipe(startWith(0))),
     map(() => {}),
-    takeUntilDestroyed()
+    takeUntilDestroyed(),
+    takeUntil(this.stop$)
   );
 
   readonly refreshRequired = outputFromObservable(this.refreshRequired$);
-
   readonly amount = input.required<number>();
   readonly currency = input.required<string>();
-
   readonly rate = computed(() => RATES[this.currency()]);
   readonly converted = computed(() => this.amount() * this.rate());
+
+  stop(): void {
+    this.stop$.next();
+  }
 }
