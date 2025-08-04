@@ -1,0 +1,15 @@
+<h1>Currency Converter</h1>
+<label>Amount</label>
+<input [formControl]="amount" type="number" />
+
+<label>Currency</label>
+<app-option-selector
+  [(selected)]="currency"
+  [options]="currencies"
+/>
+
+<app-currency-converter
+  (refreshRequired)="refreshData()"
+  [amount]="amount.value!"
+  [currency]="currency()"
+/>
